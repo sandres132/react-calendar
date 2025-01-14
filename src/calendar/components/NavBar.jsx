@@ -2,7 +2,7 @@ import { useAuthStore } from "../../hooks/useAuthStore";
 
 export const NavBar = () => {
 
-  const { startLogout, user } = useAuthStore(0);
+  const { startLogout, user } = useAuthStore();
 
   return (
     <div className="navbar navbar-dark bg-dark mb-4 px-4">

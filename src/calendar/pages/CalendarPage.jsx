@@ -1,35 +1,35 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Calendar } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 import { CalendarEvent, CalendarModal, FabAddNew, FabDelete, NavBar } from '../';
 import { getMessagesEs, localizer } from '../../helpers';
-import { useUiStore, useCalendarStore } from '../../hooks';
+import { useUiStore, useCalendarStore, useAuthStore } from '../../hooks';
 
 export const CalendarPage = () => {
 
   const { openDateModal } = useUiStore();
-  const { events, setActiveEvent } = useCalendarStore();
+  const { events, setActiveEvent, startLoadingEvents } = useCalendarStore();
+  const { user } = useAuthStore();
 
   const [lastView, setLastView] = useState(localStorage.getItem('lastView') || 'week');
 
   const eventStyleGetter = (event, start, end, isSelected) => {
-    
-    const style = {
-      backgroundColor: '',
-      borderRadius: '',
-      opacity: 0,
-      color: ''
-    };
-    if ( isSelected !== false ) {
-        style.backgroundColor = '#347CF7',
-        style.borderRadius = '0px',
+
+    const isMyEvent = ( user.uid === event.user._id ) || ( user.uid === event.user.uid );
+    // console.log(isMyEvent);
+
+    const style = {}
+
+    if ( !isSelected ) {
+        style.backgroundColor = isMyEvent ? '#5F9EA0' : '#116a8b',
+        style.borderRadius = '10px',
         style.opacity = 0.8,
         style.color = 'white'
   
     }else {
-        style.backgroundColor = '#5F9EA0',
-        style.borderRadius = '0px',
+        style.backgroundColor = '#347CF7',
+        style.borderRadius = '10px',
         style.opacity = 0.8,
         style.color = 'white'
   
@@ -38,7 +38,7 @@ export const CalendarPage = () => {
     return {style}
   }
 
-  const onDoubleClick = (event) => {
+  const onDoubleClick = () => {
     openDateModal();
   }
   
@@ -53,6 +53,11 @@ export const CalendarPage = () => {
     setLastView( event )
 
   }
+
+  useEffect(() => {
+    startLoadingEvents();
+  }, [])
+  
 
   return (
     <>

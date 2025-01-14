@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import DatePicker, { registerLocale } from 'react-datepicker';
 import Modal from 'react-modal'
 import Swal from 'sweetalert2';
@@ -9,7 +9,7 @@ import "sweetalert2/dist/sweetalert2.min.css";
 import "react-datepicker/dist/react-datepicker.css";
 import { es } from 'date-fns/locale';
 import { useUiStore } from '../../hooks/useUiStore';
-import { useCalendarStore } from '../../hooks';
+import { useAuthStore, useCalendarStore } from '../../hooks';
 
 registerLocale('es', es);
 
@@ -30,6 +30,15 @@ export const CalendarModal = () => {
 
     const { isDateModalOpen, closeDateModal } = useUiStore();
     const { activeEvent, startSavingEvent } = useCalendarStore();
+    const { user } = useAuthStore();
+    
+    let isMyEvent = false;
+    
+    if(activeEvent !== null) {
+        const value = ( user.uid === activeEvent.user._id ) || ( user.uid === activeEvent.user.uid );
+        isMyEvent = !value;
+    }
+    
 
     const [formSubmitted, setFormSubmitted] = useState(false);
     const today = new Date().getTime();
@@ -83,13 +92,12 @@ export const CalendarModal = () => {
 
         if( isNaN(difference) || difference <= 0 ) {
             Swal.fire('Fechas Incorrectas', 'Revisar las fechas ingresadas', 'error')
-            return
+            return;
         }
 
         if (formValues.title.length <= 0) return;
 
         await startSavingEvent( formValues );
-        Swal.fire('Nota Guardada!', 'La nota ha sido guardada con exito', 'success')
         closeDateModal();
         setFormSubmitted(false);
     }
@@ -112,12 +120,13 @@ export const CalendarModal = () => {
                 <DatePicker
                     minDate={ today }
                     selected={formValues.start}
-                    className='form-control'
+                    className= 'form-control'
                     onChange={(event) => onDateChange(event, 'start')}
                     dateFormat='Pp'
                     showTimeSelect
                     locale='es'
                     timeCaption='Hora'
+                    disabled={isMyEvent}
                 />
             </div>
 
@@ -132,6 +141,7 @@ export const CalendarModal = () => {
                     showTimeSelect
                     locale='es'
                     timeCaption='Hora'
+                    disabled={isMyEvent}
                 />
             </div>
 
@@ -146,6 +156,7 @@ export const CalendarModal = () => {
                     autoComplete="off"
                     value={formValues.title}
                     onChange={onInputChanged}
+                    disabled={isMyEvent}
                 />
                 <small id="emailHelp" className="form-text text-muted">Una descripción corta</small>
             </div>
@@ -159,6 +170,7 @@ export const CalendarModal = () => {
                     name="notes"
                     value={formValues.notes}
                     onChange={onInputChanged}
+                    disabled={isMyEvent}
                 ></textarea>
                 <small id="emailHelp" className="form-text text-muted">Información adicional</small>
             </div>
@@ -166,6 +178,9 @@ export const CalendarModal = () => {
             <button
                 type="submit"
                 className="btn btn-outline-primary btn-block"
+                style={{
+                    display: !isMyEvent ? '' : 'none'
+                }}
             >
                 <i className="far fa-save"></i>
                 <span> Guardar</span>

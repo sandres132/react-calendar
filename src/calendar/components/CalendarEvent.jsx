@@ -1,8 +1,8 @@
-import React from 'react'
 
-export const CalendarEvent = ({event}) => {
-
-    const { title, user } = event;
+export const CalendarEvent = (event) => {
+    // console.log("evento a calendarEvent", event.event.title);
+    
+    const { title, user } = event.event;
     
     return (
         <>

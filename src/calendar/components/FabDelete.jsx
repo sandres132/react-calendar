@@ -1,12 +1,18 @@
-import React from 'react'
-import { useCalendarStore, useUiStore } from '../../hooks'
+import { useAuthStore, useCalendarStore, useUiStore } from '../../hooks'
 import Swal from 'sweetalert2';
 
 export const FabDelete = () => {
 
-    const { startDeletingEvent, hasEventSelected } = useCalendarStore();
+    const { startDeletingEvent, hasEventSelected, activeEvent } = useCalendarStore();
     const { isDateModalOpen } = useUiStore();
+    const { user } = useAuthStore();
 
+    let isMyEvent = false;
+    
+    if(activeEvent !== null) {
+        isMyEvent = ( user.uid === activeEvent.user._id ) || ( user.uid === activeEvent.user.uid );
+    }
+    
     const handleDelete = () => {
         Swal.fire({
             title: 'Borrar Nota',
@@ -20,9 +26,7 @@ export const FabDelete = () => {
        }).then((result) => {
             if (result.isConfirmed) {
                 startDeletingEvent();
-                Swal.fire('Nota Borrada!', 'La nota ha sido borrada con exito', 'success')
-      
-            }if (result.isDenied) {
+            }else if (result.isDenied) {
                 Swal.fire('La nota no ha sido borrada', '', 'info')
             }else{
                 Swal.fire('La nota no ha sido borrada', '', 'info')
@@ -36,7 +40,7 @@ export const FabDelete = () => {
             className='btn btn-danger fab-danger'
             onClick={ handleDelete }
             style={{
-                display: (hasEventSelected && !isDateModalOpen) ? '' : 'none'
+                display: (hasEventSelected && !isDateModalOpen && isMyEvent) ? '' : 'none'
             }}
         >
             <i className='fas fa-trash-alt'></i>

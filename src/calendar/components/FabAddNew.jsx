@@ -1,4 +1,3 @@
-import React from 'react'
 import { useCalendarStore, useUiStore } from '../../hooks'
 import { addHours } from 'date-fns';
 
