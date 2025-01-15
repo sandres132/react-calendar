@@ -20,9 +20,11 @@ export const FabDelete = () => {
             icon: 'question',
             showDenyButton: true,
             confirmButtonText: 'Borrar',
+            confirmButtonAriaLabel: "borrar",
             confirmButtonColor: '#d33',
             denyButtonColor: '#808080',
             denyButtonText: `Cancelar`,
+            denyButtonAriaLabel: "cancelar",
        }).then((result) => {
             if (result.isConfirmed) {
                 startDeletingEvent();
@@ -37,6 +39,7 @@ export const FabDelete = () => {
   return (
     <>
         <button
+            aria-label='btn-delete'
             className='btn btn-danger fab-danger'
             onClick={ handleDelete }
             style={{
